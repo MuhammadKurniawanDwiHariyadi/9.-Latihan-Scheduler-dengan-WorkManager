@@ -84,7 +84,7 @@ class MyWorker(context: Context, workerParams: WorkerParameters) : Worker(contex
             .setSmallIcon(R.drawable.ic_notification_active)
             .setContentTitle(title)
             .setContentText(description)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -103,7 +103,7 @@ class MyWorker(context: Context, workerParams: WorkerParameters) : Worker(contex
         const val EXTRA_CITY = "city"
         const val NOTIFICATION_ID = 1
         const val CHANNEL_ID = "channel_01"
-        const val CHANNEL_NAME = "dicoding channel"
+        const val CHANNEL_NAME = "dicoding channel" // ini berguna pada setting nanti
     }
 
 }

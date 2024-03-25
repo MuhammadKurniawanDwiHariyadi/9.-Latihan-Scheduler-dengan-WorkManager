@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         workManager.getWorkInfoByIdLiveData(oneTimeWorkRequest.id)
             .observe(this@MainActivity) { workInfo->
                 val status = workInfo.state.name
-                binding.TVStatus.append("\n + status")
+                binding.TVStatus.append("\n + $status")
 
             }
     }

@@ -16,7 +16,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "APP_ID", "\"8itPASoKoD4yZ7j7AGcGLYRhiWs6Bn\"")
+        buildConfigField("String", "APP_ID", "\"5ed81e836d82a9ae006a7fc84c16cfe4\"")
     }
 
     buildTypes {
