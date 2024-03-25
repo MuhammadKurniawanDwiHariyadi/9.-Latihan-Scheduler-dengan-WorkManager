@@ -21,22 +21,31 @@ class MyWorker(context: Context, workerParams: WorkerParameters) : Worker(contex
 
     private var resultStatus: Result? = null
 
+    /*
+        Metode doWork adalah metode yang akan dipanggil ketika WorkManager berjalan.
+        Kode di dalamnya akan dijalankan di background thread secara otomatis
+
+        Function ini juga mengembalikan status berbentuk result dari function getCurrectWeather
+        Result.success(), Result.failure() dan Result.retry()
+     */
     override fun doWork(): Result {
         val dataCity = inputData.getString(EXTRA_CITY)
         return getCurrentWeather(dataCity)
     }
 
+    // function ini di awali dengan pengambilan data dari REST API, disini menggunakan LoopJ untuk pengambilan datanya
     private fun getCurrentWeather(city: String?): Result {
 
         Log.d(TAG, "getCurrentWeather: Mulai.....")
 
         Looper.prepare()
-        val client = SyncHttpClient()
+        val client = SyncHttpClient() // ini untuk berjalan secara synchronus, guna melakukan post.Request URL API
         val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$APP_ID"
 
         Log.d(TAG, "getCurrentWeather: $url")
 
-        client.post(url, object : AsyncHttpResponseHandler() {
+        client.post(url, object : AsyncHttpResponseHandler() { // clien bersifat syncronus menerima 2 paramater URL dan asynchronus untuk berjalan secara
+            // selain post(), ada juga get(), put(), head() dan delete()
 
             override fun onSuccess(statusCode: Int, headers: Array<Header?>?, responseBody: ByteArray) {
                 val result = String(responseBody)
@@ -53,27 +62,37 @@ class MyWorker(context: Context, workerParams: WorkerParameters) : Worker(contex
                     val temperature: String = DecimalFormat("##.##").format(tempInCelsius)
                     val title = "Current Weather in $city"
                     val message = "$currentWeather, $description with $temperature celsius"
-                    showNotification(title, message)
+
+                    showNotification(title, message) // memanggil notifikasi
                     Log.d(TAG, "onSuccess: Selesai.....")
-                    resultStatus = Result.success()
+
+                    resultStatus = Result.success() // result yang di kembalikan ke doWork untuk return value
 
                 } catch (e: Exception) {
 
                     showNotification("Get Current Weather Not Success", e.message)
                     Log.d(TAG, "onSuccess: Gagal.....")
-                    resultStatus = Result.failure()
+                    resultStatus = Result.failure() // result yang di kembalikan ke doWork untuk return value
 
                 }
+
             }
 
             override fun onFailure(statusCode: Int, headers: Array<Header?>?, responseBody: ByteArray?, error: Throwable) {
                 Log.d(TAG, "onFailure: Gagal.....")
                 // ketika proses gagal, maka jobFinished diset dengan parameter true. Yang artinya job perlu di reschedule
                 showNotification("Get Current Weather Failed", error.message)
-                resultStatus = Result.failure()
+                resultStatus = Result.failure() // result yang di kembalikan ke doWork untuk return value
             }
         })
-        return resultStatus as Result
+        return resultStatus as Result // kesimpulanya ada disini
+
+        /*
+            Khusus di WorkManager Anda perlu menjalankan proses secara synchronous supaya bisa
+            mendapatkan result success. Selain itu WorkManager sudah berjalan di background thread,
+            jadi aman saja menjalankan secara langsung. Namun jika Anda ingin menggunakan LoopJ
+            di Activity, maka gunakanlah AsyncHttpClient supaya tidak terjadi error NetworkOnMainThread.
+         */
     }
 
 
@@ -103,7 +122,11 @@ class MyWorker(context: Context, workerParams: WorkerParameters) : Worker(contex
         const val EXTRA_CITY = "city"
         const val NOTIFICATION_ID = 1
         const val CHANNEL_ID = "channel_01"
-        const val CHANNEL_NAME = "dicoding channel" // ini berguna pada setting nanti
+        const val CHANNEL_NAME = "dicoding channel"
     }
 
 }
+
+/*
+    Parsing Json di sini menggunakan Loopj, tidak dengan retrofit
+ */
